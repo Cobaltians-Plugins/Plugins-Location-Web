@@ -3,43 +3,63 @@
         name:"location",
         onError:undefined,
         onSuccess:undefined,
-
+        defaultHandlers :{
+            onLocationChanged:function(obj){
+                cobalt.log('LocationPlugin location changed ', obj)
+            },
+            onStatusChanged:function(obj){
+                cobalt.log('LocationPlugin status changed', obj && obj.status)
+            }
+        },
         init:function(options){
-            cobalt.log('init location plugin with options', options)
+            cobalt.log('LocationPlugin initialization', options)
 
-            //create shortcuts
-            cobalt.getLocation=this.getLocation.bind(this);
-
-            if (options && typeof options.onError == "function"){
-                this.onError=options.onError;
-            }
-
+            //install plugin in cobalt scope
+            cobalt.location={
+                start:this.startLocation.bind(this),
+                stop:this.stopLocation.bind(this),
+                onLocationChanged : this.defaultHandlers.onLocationChanged,
+                onStatusChanged : this.defaultHandlers.onStatusChanged
+            };
+            this.defineCallbacks(options);
         },
-        getLocation:function(callback){
-            if (typeof callback== "function"){
-                this.onSuccess = callback;
-            }
-            cobalt.log('sending getLocation call', this.onSuccess)
-            cobalt.send({ type : "plugin", name:"location", action : "getLocation"})
-
-        },
-        handleEvent:function(json){
-            cobalt.log('received native location plugin event', json)
-            if (json && json.data){
-                if (json.data.error){
-                    if (this.onError){
-                        this.onError(json.data.code, json.data.text)
-                    }else{
-                        cobalt.log('location plugin error', json.data.code, json.data.text)
-                    }
-                }else{
-                    if (this.onSuccess){
-                        this.onSuccess(json.data.value)
-                    }else{
-                        cobalt.log('location plugin success. but no callback defined. ', json.data.value, this)
-                    }
+        defineCallbacks:function(options){
+            if (options){
+                if ( typeof options.onLocationChanged == "function"){
+                    cobalt.location.onLocationChanged=options.onLocationChanged;
+                }
+                if ( typeof options.onStatusChanged == "function"){
+                    cobalt.location.onStatusChanged=options.onStatusChanged;
                 }
             }
+        },
+        startLocation:function(options){
+            if (!options || !options.mode){
+                cobalt.log('LocationPlugin startLocation invalid parameters : missing mode parameter');
+                return
+            }
+            this.defineCallbacks(options);
+
+            cobalt.log('LocationPlugin sending startLocation with options', options);
+            this.send('startLocation',options);
+        },
+        stopLocation:function(){
+            cobalt.log('LocationPlugin sending stopLocation');
+            this.send('stopLocation');
+        },
+        handleEvent:function(json){
+            cobalt.log('LocationPlugin received plugin event', json);
+            switch (json && json.action){
+                case "onLocationChanged":
+                    cobalt.location.onLocationChanged(json.data);
+                    break;
+                case "onStatusChanged":
+                    cobalt.location.onStatusChanged(json.data && json.data.status);
+                    break;
+            }
+        },
+        send:function(action, data, callback){
+            cobalt.send({ type : "plugin", name : "location", action : action, data : data }, callback);
         }
     };
     cobalt.plugins.register(plugin);
