@@ -54,7 +54,7 @@
                     cobalt.location.onLocationChanged(json.data);
                     break;
                 case "onStatusChanged":
-                    cobalt.location.onStatusChanged(json.data && json.data.status);
+                    cobalt.location.onStatusChanged(json.data);
                     break;
             }
         },
