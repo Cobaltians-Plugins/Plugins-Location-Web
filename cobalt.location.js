@@ -1,67 +1,83 @@
-(function(cobalt){
-    var plugin={
-        name:"location",
-        onError:undefined,
-        onSuccess:undefined,
-        defaultHandlers :{
-            onLocationChanged:function(obj){
-                cobalt.log('LocationPlugin location changed ', obj)
+(function (cobalt) {
+    var plugin = {
+        name: "location",
+
+        defaultHandlers: {
+            onLocationChanged: function (obj) {
+                cobalt.log(this.name, ': location changed: ', obj);
             },
-            onStatusChanged:function(obj){
-                cobalt.log('LocationPlugin status changed', obj && obj.status)
+            onStatusChanged: function (obj) {
+                cobalt.log(this.name, ': status changed: ', obj && obj.status);
             }
         },
-        init:function(options){
-            cobalt.log('LocationPlugin initialization', options)
 
-            //install plugin in cobalt scope
-            cobalt.location={
-                start:this.startLocation.bind(this),
-                stop:this.stopLocation.bind(this),
-                onLocationChanged : this.defaultHandlers.onLocationChanged,
-                onStatusChanged : this.defaultHandlers.onStatusChanged
+        status: {
+            REFUSED: 'refused',
+            DISABLED: 'disabled',
+            TIMEOUT: 'timeout'
+        },
+
+        init: function (options) {
+            cobalt.location = {
+                start: this.startLocation.bind(this),
+                stop: this.stopLocation.bind(this),
+                onLocationChanged: this.defaultHandlers.onLocationChanged,
+                onStatusChanged: this.defaultHandlers.onStatusChanged,
+                status: this.status
             };
+
             this.defineCallbacks(options);
         },
-        defineCallbacks:function(options){
-            if (options){
-                if ( typeof options.onLocationChanged == "function"){
-                    cobalt.location.onLocationChanged=options.onLocationChanged;
+
+        defineCallbacks: function (options) {
+            if (options) {
+                if (typeof options.onLocationChanged == 'function') {
+                    cobalt.location.onLocationChanged = options.onLocationChanged;
                 }
-                if ( typeof options.onStatusChanged == "function"){
-                    cobalt.location.onStatusChanged=options.onStatusChanged;
+
+                if (typeof options.onStatusChanged == 'function') {
+                    cobalt.location.onStatusChanged = options.onStatusChanged;
                 }
             }
         },
-        startLocation:function(options){
-            if (!options || !options.mode){
-                cobalt.log('LocationPlugin startLocation invalid parameters : missing mode parameter');
-                return
-            }
+
+        startLocation: function (options) {
             this.defineCallbacks(options);
 
-            cobalt.log('LocationPlugin sending startLocation with options', options);
-            this.send('startLocation',options);
+            this.send('startLocation', options || {});
         },
-        stopLocation:function(){
-            cobalt.log('LocationPlugin sending stopLocation');
+
+        stopLocation: function () {
             this.send('stopLocation');
         },
-        handleEvent:function(json){
-            cobalt.log('LocationPlugin received plugin event', json);
-            switch (json && json.action){
-                case "onLocationChanged":
+
+        handleEvent: function (json) {
+            cobalt.log(this.name, ': received plugin event: ', json);
+
+            switch (json && json.action) {
+                case 'onLocationChanged':
                     cobalt.location.onLocationChanged(json.data);
                     break;
-                case "onStatusChanged":
+
+                case 'onStatusChanged':
                     cobalt.location.onStatusChanged(json.data);
+                    break;
+
+                default:
+                    cobalt.log(this.name, ': unknown action: ', json.action);
                     break;
             }
         },
-        send:function(action, data, callback){
-            cobalt.send({ type : "plugin", name : "location", action : action, data : data }, callback);
+
+        send: function (action, data, callback) {
+            cobalt.send({
+                type: 'plugin',
+                name: this.name,
+                action: action,
+                data: data
+            }, callback);
         }
     };
-    cobalt.plugins.register(plugin);
 
+    cobalt.plugins.register(plugin);
 })(cobalt || {});
