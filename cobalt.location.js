@@ -1,7 +1,6 @@
 (function (cobalt) {
     var plugin = {
         name: "location",
-
         defaultHandlers: {
             onLocationChanged: function (obj) {
                 cobalt.log(this.name, ': location changed: ', obj);
@@ -10,14 +9,12 @@
                 cobalt.log(this.name, ': status changed: ', obj && obj.status);
             }
         },
-
         status: {
             REFUSED: 'refused',
             DISABLED: 'disabled',
             TIMEOUT: 'timeout'
         },
-
-        init: function (options) {
+        init: function () {
             cobalt.location = {
                 start: this.startLocation.bind(this),
                 stop: this.stopLocation.bind(this),
@@ -25,10 +22,7 @@
                 onStatusChanged: this.defaultHandlers.onStatusChanged,
                 status: this.status
             };
-
-            this.defineCallbacks(options);
         },
-
         defineCallbacks: function (options) {
             if (options) {
                 if (typeof options.onLocationChanged == 'function') {
