@@ -38,11 +38,11 @@
         startLocation: function (options) {
             this.defineCallbacks(options);
 
-            this.send('startLocation', options || {});
+            cobalt.plugins.send(this, 'startLocation', options || {});
         },
 
         stopLocation: function () {
-            this.send('stopLocation');
+            cobalt.plugins.send(this, 'stopLocation');
         },
 
         handleEvent: function (json) {
@@ -61,15 +61,6 @@
                     cobalt.log(this.name, ': unknown action: ', json.action);
                     break;
             }
-        },
-
-        send: function (action, data, callback) {
-            cobalt.send({
-                type: 'plugin',
-                name: this.name,
-                action: action,
-                data: data
-            }, callback);
         }
     };
 
