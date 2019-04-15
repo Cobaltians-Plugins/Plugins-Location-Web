@@ -28,11 +28,11 @@
     },
     defineCallbacks: function(options) {
       if (options) {
-        if (typeof options.onLocationChanged == 'function') {
+        if (typeof options.onLocationChanged === 'function') {
           cobalt.location.onLocationChanged = options.onLocationChanged;
         }
 
-        if (typeof options.onStatusChanged == 'function') {
+        if (typeof options.onStatusChanged === 'function') {
           cobalt.location.onStatusChanged = options.onStatusChanged;
         }
       }
@@ -47,7 +47,6 @@
     },
     handleEvent: function(json) {
       cobalt.log('locationPlugin : received plugin event: ', json);
-
       switch (json && json.action) {
         case 'onLocationChanged':
           cobalt.location.onLocationChanged(json.data);
