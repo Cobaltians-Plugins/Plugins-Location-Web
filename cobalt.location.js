@@ -1,5 +1,6 @@
 (function(cobalt) {
   var plugin = {
+    name: 'CobaltCobaltLocationPlugin',
     classes: {
       ios: "CobaltLocationPlugin",
       android: "io.kristal.locationplugin.LocationPlugin"
