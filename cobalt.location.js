@@ -1,16 +1,16 @@
 (function(cobalt) {
   var plugin = {
-    name: 'CobaltCobaltLocationPlugin',
+    name: 'CobaltLocationPlugin',
     classes: {
       ios: "CobaltLocationPlugin",
       android: "io.kristal.locationplugin.LocationPlugin"
     },
     defaultHandlers: {
       onLocationChanged: function(obj) {
-        cobalt.log('locationPlugin : location changed: ', obj);
+        cobalt.log(this.name, ': location changed: ', obj);
       },
       onStatusChanged: function(obj) {
-        cobalt.log('locationPlugin :  status changed: ', obj && obj.status);
+        cobalt.log(this.name, ':  status changed: ', obj && obj.status);
       }
     },
     status: {
@@ -47,7 +47,6 @@
       cobalt.plugins.send(this, 'stopLocation');
     },
     handleEvent: function(json) {
-      cobalt.log('locationPlugin : received plugin event: ', json);
       switch (json && json.action) {
         case 'onLocationChanged':
           cobalt.location.onLocationChanged(json.data);
