@@ -41,10 +41,26 @@
     startLocation: function(options) {
       this.defineCallbacks(options);
 
-      cobalt.plugins.send(this, 'startLocation', options || {}, cobalt.location.onLocationChanged);
+      cobalt.plugins.send(this, 'startLocation', options);
     },
     stopLocation: function() {
-      cobalt.plugins.send(this, 'stopLocation', {}, cobalt.location.onStatusChanged);
+      cobalt.plugins.send(this, 'stopLocation', {});
+    },
+    handleEvent: function (json) {
+        cobalt.log(this.name, ': received plugin event: ', json);
+
+        switch (json && json.action) {
+            case 'onLocationChanged':
+                cobalt.location.onLocationChanged(json.data);
+                break;
+
+            case 'onStatusChanged':
+                cobalt.location.onStatusChanged(json.data);
+                break;
+            default:
+                cobalt.log(this.name, ': unknown action: ', json.action);
+                break;
+        }
     }
   };
 
